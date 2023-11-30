@@ -1,0 +1,84 @@
+#include <iostream>
+#include <math.h>
+
+using std::cout;
+using std::cin;
+
+double f(double x);
+double leftRectangles(double a, double b, const double eps);
+double rightRectangles(double a, double b, const double eps);
+double middleRectangles(double a, double b, const double eps);
+
+int main() {
+	const double eps = 0.001; //точность
+	double a = 0.0, b = 1; /* пределы интегрирования */
+	cout << "Integral solution with left rectangles method: " << leftRectangles(a, b, eps) << endl;
+	cout << "Integral solution with right rectangles method: " << rightRectangles(a, b, eps) << endl;
+	cout << "Integral solution with middle rectangles method: " << middleRectangles(a, b, eps) << endl;
+	cout << "Integral solution with trapezoid method: " << endl;
+
+}
+
+double f(double x) {
+	return (1 / sqrt(1 - pow(x, 2)));
+}
+
+double leftRectangles(double a, double b, const double eps) {
+	double l0 = 0, l1 = INFINITY; // текущее и предыдущее значение интеграла
+	int n = 5; // число отрезков
+	double h = 0; // длина одного отрезка
+	double x = 0;
+	while (fabs(l1 - l0) > eps) {
+		n = 2 * n;
+		l0 = l1;
+		h = (b - a) / n;
+		l1 = 0;
+		for (int i = 0; i < n - 1; i++) {
+			x = a + i * h;
+			l1 = l1 + f(x);
+		}
+		l1 = l1 * h;
+	}
+	return l1;
+}
+
+double rightRectangles(double a, double b, const double eps) {
+	double l0 = 0, l1 = INFINITY; // текущее и предыдущее значение интеграла
+	int n = 5; // число отрезков
+	double h = 0; // длина одного отрезка
+	double x = 0;
+	while (fabs(l1 - l0) > eps) {
+		n = 2 * n;
+		l0 = l1;
+		h = (b - a) / n;
+		l1 = 0;
+		for (int i = 1; i <= n; i++) {
+			x = a + (i + 1) * h;
+			l1 = l1 + f(x);
+		}
+		l1 = l1 * h;
+	}
+	return l1;
+}
+
+double middleRectangles(double a, double b, const double eps) {
+	double l0 = 0, l1 = INFINITY; // текущее и предыдущее значение интеграла
+	int n = 5; // число отрезков
+	double h = 0; // длина одного отрезка
+	double x = 0;
+	while (fabs(l1 - l0) > eps) {
+		n = 2 * n;
+		l0 = l1;
+		h = (b - a) / n;
+		l1 = 0;
+		for (int i = 0; i < n; i++) {
+			x = a + (h / 2) + i * h;
+			l1 = l1 + f(x);
+		}
+		l1 = l1 * h;
+	}
+	return l1;
+}
+
+
+
