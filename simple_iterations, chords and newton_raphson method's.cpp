@@ -2,7 +2,7 @@
 
 double f(double x);
 double g(double x);
-double simple_iterations(double a, double b, double accuracy);
+double simple_iterations(double a, double b, double eps);
 double newton_raphson(double a, double b, double accuracy);
 double chord(double a, double b, double accuracy);
 
@@ -22,30 +22,7 @@ double f(double x) {
 double g(double x) {
 	return 2 * cos(x) - (1 / (x * x + 1));
 }
-double simple_iterations(double a, double b, double accuracy) {
-    double h = (b - a) / 100, /* Шаг */
-        x0 = (a + b) / 2, /* x0 - начальное приближение */
-        C; /* Знак производной */
-    double x = a, y = a + h, M = (f(y) - f(x)) / h;
-    do {
-        x = y; //преобразуем к виду x = f(x)
-        y = x + h;
-        C = fabs(f(y) - f(x)) / h;
 
-        if (C > M) {
-            M = C;
-        }
-    } while (C > M);
-    ++M;
-    C = f(a) < f(b) ? 1 : -1;
-    double x1 = x0 - C * (f(x0) / M);
-    do {
-        x0 = x1;
-        x1 = x0 - C * f(x0) / M;
-    } while (fabs(x1 - x0) > accuracy);
-    x = x1;
-	return x;
-}
 double chord(double a, double b, double accuracy) {
 	double h = (b - a) / 100;
 	double y = f(a);
@@ -88,4 +65,59 @@ double newton_raphson(double a, double b, double accuracy) {
 	x = x1;
 	return x;
 }
+
+double simple_iterations(double a, double b, double eps) {
+	double h = (b - a / 100); /* шаг для разбиения интервала[a, b] */
+	double x0 = (b + a) / 2;  /* Начальное приблежение к корю, среднее значение между a и b */
+	double x = a;
+	double y = a + h;
+	double M = (fabs(f(y) - f(x)) / h); /* Оценка максимальной производной f(x) на интервале a и b */
+	double C;
+
+	while (y < b) {
+		x = y;
+		y = x + h;
+		/* Берем две точки */
+		C = (fabs(f(y) - f(x)) / h); /* Смотрим насколько f(y) - f(x) различаются */
+		if (C > M) {
+			M = C;
+			/* Если разница велика, это становится оценочным значение
+				быстроты изменения функции на интервале.
+			*/
+		}
+	}
+
+	M++; /* Увеличиваем на 1. Нужно для того, чтобы учесть длинну интервала */
+
+	C = f(a) < f(b) ? 1 : -1;
+
+	/*
+		В зависимости какое значение больше выбераем направление, в котором двигаться к корню.
+		Если f(a) ближе к 0, идем в положительном направлении.
+		Если наоборот, идем в отрицательном направлении.
+	*/
+
+	double x1 = x0 - C * (f(x0) / M);
+
+	/*
+		Теперь начиная с точки x0 используем формулу x1 = ..., для поиска следующей точки.
+		Повторяем этот шаг, пока разница между x1 и x0 не станет меньше, чем наша точность.
+
+	*/
+
+	while (fabs(x1 - x0) > eps) {
+		x0 = x1;
+		x1 = x0 - C * (f(x0) / M);
+	}
+
+	/*
+		Как только разница стала достаточно маленькой, (меньше eps), x1 считается приблеженным корнем уравнения.
+	*/
+	x = x1;
+	return x;
+	/*
+		Функция должна быть непрерывна.
+	*/
+}
+
 
